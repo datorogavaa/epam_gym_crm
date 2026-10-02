@@ -1,0 +1,241 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > StorageDataInitializerPostProcessor</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gym.crm.storage</a>
+</div>
+
+<h1>Coverage Summary for Class: StorageDataInitializerPostProcessor (com.gym.crm.storage)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">StorageDataInitializerPostProcessor</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    73.7%
+  </span>
+  <span class="absValue">
+    (14/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.2%
+  </span>
+  <span class="absValue">
+    (55/59)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gym.crm.storage;
+&nbsp;
+&nbsp;import com.gym.crm.domain.Trainee;
+&nbsp;import com.gym.crm.domain.Trainer;
+&nbsp;import com.gym.crm.domain.Training;
+&nbsp;import com.gym.crm.domain.TrainingType;
+&nbsp;import org.springframework.beans.BeansException;
+&nbsp;import org.springframework.beans.factory.annotation.Value;
+&nbsp;import org.springframework.beans.factory.config.BeanPostProcessor;
+&nbsp;import org.springframework.core.io.ClassPathResource;
+&nbsp;import org.springframework.core.io.Resource;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.io.BufferedReader;
+&nbsp;import java.io.InputStreamReader;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.time.Duration;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.logging.Logger;
+&nbsp;
+&nbsp;@Component
+<b class="fc">&nbsp;public class StorageDataInitializerPostProcessor implements BeanPostProcessor {</b>
+&nbsp;
+<b class="fc">&nbsp;    private final Logger logger = Logger.getLogger(StorageDataInitializerPostProcessor.class.getName());</b>
+&nbsp;
+&nbsp;    @Value(&quot;${storage.data.file.path}&quot;)
+&nbsp;    private String dataFilePath;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+<b class="fc">&nbsp;        if (bean instanceof Storage storage) {</b>
+<b class="fc">&nbsp;            logger.info(&quot;Initializing Storage bean from CSV: &quot; + dataFilePath);</b>
+<b class="fc">&nbsp;            loadDataFromCsv(storage);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return bean;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void loadDataFromCsv(Storage storage) {
+<b class="pc">&nbsp;        String path = (dataFilePath != null &amp;&amp; dataFilePath.startsWith(&quot;classpath:&quot;))</b>
+<b class="nc">&nbsp;                ? dataFilePath.substring(&quot;classpath:&quot;.length())</b>
+<b class="fc">&nbsp;                : dataFilePath;</b>
+&nbsp;
+<b class="fc">&nbsp;        Resource resource = new ClassPathResource(path);</b>
+&nbsp;
+<b class="pc">&nbsp;        if (!resource.exists()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;CSV file not found at classpath: &quot; + path);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        try (BufferedReader reader = new BufferedReader(</b>
+<b class="fc">&nbsp;                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {</b>
+&nbsp;
+&nbsp;            String line;
+<b class="fc">&nbsp;            boolean isHeader = true;</b>
+&nbsp;
+<b class="fc">&nbsp;            while ((line = reader.readLine()) != null) {</b>
+<b class="fc">&nbsp;                line = line.trim();</b>
+<b class="pc">&nbsp;                if (line.isEmpty() || line.startsWith(&quot;#&quot;)) {</b>
+&nbsp;                    continue;
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                if (isHeader) {</b>
+<b class="fc">&nbsp;                    isHeader = false;</b>
+&nbsp;                    continue;
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                String[] tokens = line.split(&quot;,&quot;, -1);</b>
+<b class="fc">&nbsp;                String type = tokens[0].trim().toUpperCase();</b>
+&nbsp;
+<b class="pc">&nbsp;                switch (type) {</b>
+<b class="fc">&nbsp;                    case &quot;TRAINER&quot; -&gt; parseTrainer(tokens, storage);</b>
+<b class="fc">&nbsp;                    case &quot;TRAINEE&quot; -&gt; parseTrainee(tokens, storage);</b>
+<b class="fc">&nbsp;                    case &quot;TRAINING&quot; -&gt; parseTraining(tokens, storage);</b>
+<b class="nc">&nbsp;                    default -&gt; logger.warning(&quot;Unknown entity type in CSV: &quot; + type);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            logger.info(&quot;Successfully loaded CSV data into Storage.&quot;);</b>
+&nbsp;
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Failed to read CSV data file: &quot; + path, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void parseTrainer(String[] tokens, Storage storage) {
+<b class="fc">&nbsp;        Long id = Long.parseLong(tokens[1].trim());</b>
+<b class="fc">&nbsp;        Trainer trainer = new Trainer();</b>
+<b class="fc">&nbsp;        trainer.setUserId(id);</b>
+<b class="fc">&nbsp;        trainer.setFirstName(tokens[2].trim());</b>
+<b class="fc">&nbsp;        trainer.setLastName(tokens[3].trim());</b>
+<b class="fc">&nbsp;        trainer.setUsername(tokens[4].trim());</b>
+<b class="fc">&nbsp;        trainer.setPassword(tokens[5].trim());</b>
+<b class="fc">&nbsp;        trainer.setActive(Boolean.parseBoolean(tokens[6].trim()));</b>
+<b class="fc">&nbsp;        trainer.setSpecialization(new TrainingType(tokens[7].trim()));</b>
+&nbsp;
+<b class="fc">&nbsp;        storage.getTrainers().put(id, trainer);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void parseTrainee(String[] tokens, Storage storage) {
+<b class="fc">&nbsp;        Long id = Long.parseLong(tokens[1].trim());</b>
+<b class="fc">&nbsp;        Trainee trainee = new Trainee();</b>
+<b class="fc">&nbsp;        trainee.setUserId(id);</b>
+<b class="fc">&nbsp;        trainee.setFirstName(tokens[2].trim());</b>
+<b class="fc">&nbsp;        trainee.setLastName(tokens[3].trim());</b>
+<b class="fc">&nbsp;        trainee.setUsername(tokens[4].trim());</b>
+<b class="fc">&nbsp;        trainee.setPassword(tokens[5].trim());</b>
+<b class="fc">&nbsp;        trainee.setActive(Boolean.parseBoolean(tokens[6].trim()));</b>
+<b class="fc">&nbsp;        trainee.setDateOfBirth(LocalDate.parse(tokens[7].trim()));</b>
+<b class="fc">&nbsp;        trainee.setAddress(tokens[8].trim());</b>
+&nbsp;
+<b class="fc">&nbsp;        storage.getTrainees().put(id, trainee);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void parseTraining(String[] tokens, Storage storage) {
+<b class="fc">&nbsp;        Long trainingId = Long.parseLong(tokens[1].trim());</b>
+<b class="fc">&nbsp;        Training training = new Training();</b>
+<b class="fc">&nbsp;        training.setTrainingName(tokens[2].trim());</b>
+<b class="fc">&nbsp;        training.setTrainingType(new TrainingType(tokens[3].trim()));</b>
+<b class="fc">&nbsp;        training.setTraineeId(Long.parseLong(tokens[4].trim()));</b>
+<b class="fc">&nbsp;        training.setTrainerId(Long.parseLong(tokens[5].trim()));</b>
+<b class="fc">&nbsp;        training.setTrainingDate(LocalDate.parse(tokens[6].trim()));</b>
+<b class="fc">&nbsp;        training.setTrainingDuration(Duration.ofMinutes(Long.parseLong(tokens[7].trim())));</b>
+&nbsp;
+<b class="fc">&nbsp;        storage.getTrainings().put(trainingId, training);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-10-02 18:04</div>
+</div>
+</body>
+</html>

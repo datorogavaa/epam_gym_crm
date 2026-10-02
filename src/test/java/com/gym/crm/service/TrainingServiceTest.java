@@ -57,4 +57,22 @@ class TrainingServiceTest {
 
         assertEquals(trainings, result);
     }
+
+    @Test
+    void findById_shouldReturnNullWhenDaoReturnsNull() {
+        when(trainingDao.findById(404L)).thenReturn(null);
+
+        Training result = service.findById(404L);
+
+        assertEquals(null, result);
+    }
+
+    @Test
+    void findAll_shouldReturnEmptyMapWhenNoTrainingsExist() {
+        when(trainingDao.findAll()).thenReturn(Map.of());
+
+        Map<Long, Training> result = service.findAll();
+
+        assertEquals(Map.of(), result);
+    }
 }

@@ -1,0 +1,163 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Storage</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gym.crm.storage</a>
+</div>
+
+<h1>Coverage Summary for Class: Storage (com.gym.crm.storage)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Storage</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gym.crm.storage;
+&nbsp;
+&nbsp;import com.gym.crm.domain.Trainee;
+&nbsp;import com.gym.crm.domain.Trainer;
+&nbsp;import com.gym.crm.domain.Training;
+&nbsp;import com.gym.crm.domain.TrainingType;
+&nbsp;import jakarta.annotation.PostConstruct;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.beans.factory.annotation.Qualifier;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.time.Duration;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.concurrent.ConcurrentHashMap;
+&nbsp;import java.util.logging.Logger;
+&nbsp;
+&nbsp;@Component
+&nbsp;public class Storage {
+&nbsp;
+<b class="fc">&nbsp;    private final Logger logger = Logger.getLogger(Storage.class.getName());</b>
+&nbsp;
+&nbsp;    private  Map&lt;Long, Trainee&gt; trainees;
+&nbsp;    private  Map&lt;Long, Trainer&gt; trainers;
+&nbsp;    private  Map&lt;Long, Training&gt; trainings;
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    public Storage() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setTrainees(@Qualifier(&quot;traineeMap&quot;) Map&lt;Long, Trainee&gt; trainees) {
+<b class="fc">&nbsp;        this.trainees = trainees;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setTrainers(@Qualifier(&quot;trainerMap&quot;) Map&lt;Long, Trainer&gt; trainers) {
+<b class="fc">&nbsp;        this.trainers = trainers;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setTrainings(@Qualifier(&quot;trainingMap&quot;) Map&lt;Long, Training&gt; trainings) {
+<b class="fc">&nbsp;        this.trainings = trainings;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Map&lt;Long, Trainee&gt; getTrainees() {
+<b class="fc">&nbsp;        return trainees;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Map&lt;Long, Trainer&gt; getTrainers() {
+<b class="fc">&nbsp;        return trainers;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Map&lt;Long, Training&gt; getTrainings() {
+<b class="fc">&nbsp;        return trainings;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-10-02 18:04</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+TYPE,ID,COL1,COL2,COL3,COL4,COL5,COL6,COL7
+TRAINER,1,Alex,Stone,Alex.Stone,aB9#kL2mP8,true,Fitness,
+TRAINER,2,Maria,Garcia,Maria.Garcia,pL9#vX2mQ1,true,Yoga,
+TRAINER,3,David,Miller,David.Miller,mK3@jR7tY4,false,Strength,
+TRAINEE,101,John,Doe,John.Doe,xY8!mP4kL1,true,1995-04-12,Rustaveli Ave 15
+TRAINEE,102,Emma,Watson,Emma.Watson,qW7$kJ8vL2,true,1998-07-20,Chavchavadze Ave 22
+TRAINEE,103,Lucas,Smith,Lucas.Smith,tR5*gH9pW3,false,2001-11-03,Pekini Ave 8
+TRAINING,1001,Morning Cardio Kick,Fitness,101,1,2026-09-25,60
+TRAINING,1002,Evening Gentle Yoga,Yoga,102,2,2026-09-26,45
+TRAINING,1003,Core Strength Intensive,Strength,103,3,2026-09-27,90

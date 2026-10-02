@@ -5,15 +5,15 @@ import com.gym.crm.storage.Storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeDaoImplTest {
@@ -21,69 +21,99 @@ class TraineeDaoImplTest {
     @Mock
     private Storage storage;
 
+    @InjectMocks
     private TraineeDaoImpl traineeDao;
+
+    private Map<Long, Trainee> mockTraineesMap;
 
     @BeforeEach
     void setUp() {
-        traineeDao = new TraineeDaoImpl();
-        traineeDao.setStorage(storage);
+        mockTraineesMap = new ConcurrentHashMap<>();
+        lenient().when(storage.getTrainees()).thenReturn(mockTraineesMap);
     }
 
     @Test
-    void save_shouldDelegateToStorage() {
+    void saveAndFindById() {
         Trainee trainee = new Trainee();
-        trainee.setUserId(10L);
+        trainee.setUserId(101L);
+        trainee.setFirstName("John");
 
         traineeDao.save(trainee);
+        Trainee found = traineeDao.findById(101L);
 
-        verify(storage).save("Trainee", 10L, trainee);
+        assertNotNull(found);
+        assertEquals("John", found.getFirstName());
     }
 
     @Test
-    void findById_shouldReturnStoredTrainee() {
+    void updateModifiesExistingTrainee() {
         Trainee trainee = new Trainee();
-        trainee.setUserId(22L);
-        when(storage.findById("Trainee", 22L)).thenReturn(trainee);
+        trainee.setUserId(101L);
+        trainee.setFirstName("John");
+        traineeDao.save(trainee);
 
-        Trainee result = traineeDao.findById(22L);
+        Trainee updated = new Trainee();
+        updated.setUserId(101L);
+        updated.setFirstName("Johnny");
+        traineeDao.update(updated);
 
-        assertSame(trainee, result);
+        Trainee result = traineeDao.findById(101L);
+        assertEquals("Johnny", result.getFirstName());
     }
 
     @Test
-    void update_shouldDelegateToStorage() {
+    void deleteRemovesTrainee() {
         Trainee trainee = new Trainee();
-        trainee.setUserId(33L);
+        trainee.setUserId(101L);
+        traineeDao.save(trainee);
 
-        traineeDao.update(trainee);
+        traineeDao.delete(101L);
 
-        verify(storage).update("Trainee", 33L, trainee);
+        assertNull(traineeDao.findById(101L));
     }
 
     @Test
-    void delete_shouldDelegateToStorage() {
-        traineeDao.delete(44L);
-
-        verify(storage).delete("Trainee", 44L);
-    }
-
-    @Test
-    void findAll_shouldReturnAllTrainees() {
+    void findAllAndGetAllReturnMap() {
         Trainee trainee = new Trainee();
-        Map<Long, Trainee> expected = Map.of(1L, trainee);
-        when(storage.getTrainees()).thenReturn(expected);
+        trainee.setUserId(101L);
+        traineeDao.save(trainee);
 
-        Map<Long, Trainee> result = traineeDao.findAll();
-
-        assertEquals(expected, result);
+        assertEquals(1, traineeDao.findAll().size());
+        assertEquals(1, traineeDao.getAll().size());
     }
 
     @Test
-    void findById_whenNotFound_shouldReturnNull() {
-        when(storage.findById("Trainee", 999L)).thenReturn(null);
+    void saveShouldIgnoreNullOrMissingId() {
+        traineeDao.save(null);
+        Trainee withoutId = new Trainee();
+        traineeDao.save(withoutId);
 
-        Trainee result = traineeDao.findById(999L);
+        assertTrue(traineeDao.findAll().isEmpty());
+    }
 
-        assertSame(null, result);
+    @Test
+    void updateShouldIgnoreNullOrMissingId() {
+        Trainee valid = new Trainee();
+        valid.setUserId(101L);
+        valid.setFirstName("John");
+        traineeDao.save(valid);
+
+        traineeDao.update(null);
+        Trainee missingId = new Trainee();
+        missingId.setFirstName("Jane");
+        traineeDao.update(missingId);
+
+        assertEquals("John", traineeDao.findById(101L).getFirstName());
+    }
+
+    @Test
+    void deleteShouldIgnoreNullId() {
+        Trainee trainee = new Trainee();
+        trainee.setUserId(101L);
+        traineeDao.save(trainee);
+
+        traineeDao.delete(null);
+
+        assertNotNull(traineeDao.findById(101L));
     }
 }

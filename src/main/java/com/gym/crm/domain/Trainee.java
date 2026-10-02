@@ -7,7 +7,7 @@ import java.util.Date;
 public class Trainee extends User {
     private LocalDate dateOfBirth;
     private String address;
-    private Long UserId;
+    private Long userId;
 
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
@@ -26,10 +26,10 @@ public class Trainee extends User {
     }
 
     public Long getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(Long userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 }
