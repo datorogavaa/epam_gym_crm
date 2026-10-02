@@ -14,7 +14,7 @@ public class TrainerService {
     private TrainerDao trainerDao;
 
     @Autowired
-    private void setTrainerDao(TrainerDao trainerDao) {
+    public void setTrainerDao(TrainerDao trainerDao) {
         this.trainerDao = trainerDao;
     }
 

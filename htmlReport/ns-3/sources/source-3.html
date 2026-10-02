@@ -1,0 +1,167 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TrainingDaoImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gym.crm.dao</a>
+</div>
+
+<h1>Coverage Summary for Class: TrainingDaoImpl (com.gym.crm.dao)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TrainingDaoImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (13/13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gym.crm.dao;
+&nbsp;
+&nbsp;import com.gym.crm.domain.Training;
+&nbsp;import com.gym.crm.storage.Storage;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.concurrent.atomic.AtomicLong;
+&nbsp;import java.util.logging.Logger;
+&nbsp;
+&nbsp;@Repository
+&nbsp;public class TrainingDaoImpl implements TrainingDao {
+&nbsp;
+<b class="fc">&nbsp;    private final Logger logger = Logger.getLogger(TrainingDaoImpl.class.getName());</b>
+<b class="fc">&nbsp;    private final AtomicLong idGenerator = new AtomicLong(1000L);</b>
+&nbsp;    private Storage storage;
+&nbsp;
+<b class="fc">&nbsp;    public TrainingDaoImpl() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setStorage(Storage storage) {
+<b class="fc">&nbsp;        this.storage = storage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void save(Training training) {
+<b class="fc">&nbsp;        if (training == null) {</b>
+<b class="fc">&nbsp;            logger.warning(&quot;Attempted to save null training&quot;);</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Long generatedId = idGenerator.incrementAndGet();</b>
+<b class="fc">&nbsp;        storage.getTrainings().put(generatedId, training);</b>
+<b class="fc">&nbsp;        logger.info(&quot;Saved training with ID: &quot; + generatedId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Training findById(Long id) {
+<b class="fc">&nbsp;        if (id == null) {</b>
+<b class="fc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return storage.getTrainings().get(id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Map&lt;Long, Training&gt; findAll() {
+<b class="fc">&nbsp;        return storage.getTrainings();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-10-02 18:04</div>
+</div>
+</body>
+</html>

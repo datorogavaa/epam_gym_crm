@@ -1,0 +1,187 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TraineeDaoImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gym.crm.dao</a>
+</div>
+
+<h1>Coverage Summary for Class: TraineeDaoImpl (com.gym.crm.dao)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TraineeDaoImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91.7%
+  </span>
+  <span class="absValue">
+    (11/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.7%
+  </span>
+  <span class="absValue">
+    (18/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gym.crm.dao;
+&nbsp;
+&nbsp;import com.gym.crm.domain.Trainee;
+&nbsp;import com.gym.crm.storage.Storage;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.logging.Logger;
+&nbsp;
+&nbsp;@Repository
+&nbsp;public class TraineeDaoImpl implements TraineeDao {
+&nbsp;
+<b class="fc">&nbsp;    private final Logger logger = Logger.getLogger(TraineeDaoImpl.class.getName());</b>
+&nbsp;    private Storage storage;
+&nbsp;
+<b class="fc">&nbsp;    public TraineeDaoImpl() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setStorage(Storage storage) {
+<b class="fc">&nbsp;        this.storage = storage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void save(Trainee trainee) {
+<b class="fc">&nbsp;        if (trainee == null || trainee.getUserId() == null) {</b>
+<b class="fc">&nbsp;            logger.warning(&quot;Attempted to save null trainee or trainee with null ID&quot;);</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="fc">&nbsp;        storage.getTrainees().put(trainee.getUserId(), trainee);</b>
+<b class="fc">&nbsp;        logger.info(&quot;Saved trainee with ID: &quot; + trainee.getUserId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Trainee findById(Long userId) {
+<b class="pc">&nbsp;        if (userId == null) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return storage.getTrainees().get(userId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void update(Trainee updatedTrainee) {
+<b class="fc">&nbsp;        if (updatedTrainee == null || updatedTrainee.getUserId() == null) {</b>
+<b class="fc">&nbsp;            logger.warning(&quot;Attempted to update null trainee or trainee with null ID&quot;);</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="fc">&nbsp;        storage.getTrainees().replace(updatedTrainee.getUserId(), updatedTrainee);</b>
+<b class="fc">&nbsp;        logger.info(&quot;Updated trainee with ID: &quot; + updatedTrainee.getUserId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void delete(Long userId) {
+<b class="fc">&nbsp;        if (userId == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="fc">&nbsp;        storage.getTrainees().remove(userId);</b>
+<b class="fc">&nbsp;        logger.info(&quot;Deleted trainee with ID: &quot; + userId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Map&lt;Long, Trainee&gt; findAll() {
+<b class="fc">&nbsp;        return storage.getTrainees();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Map&lt;Long, Trainee&gt; getAll() {
+<b class="fc">&nbsp;        return storage.getTrainees();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-10-02 18:04</div>
+</div>
+</body>
+</html>

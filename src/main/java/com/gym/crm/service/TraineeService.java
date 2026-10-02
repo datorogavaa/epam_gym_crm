@@ -12,7 +12,7 @@ public class TraineeService {
     private TraineeDao traineeDao;
 
     @Autowired
-    private void setTraineeDao(TraineeDao traineeDao) {
+    public void setTraineeDao(TraineeDao traineeDao) {
         this.traineeDao = traineeDao;
     }
 
