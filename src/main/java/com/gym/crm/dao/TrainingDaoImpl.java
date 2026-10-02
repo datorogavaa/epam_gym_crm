@@ -46,6 +46,7 @@ public class TrainingDaoImpl implements TrainingDao {
 
     @Override
     public Map<Long, Training> findAll() {
+        logger.info("Retrieving all trainings");
         return storage.getTrainings();
     }
 }
