@@ -1,6 +1,5 @@
 package com.gym.crm.dao;
 
-import com.gym.crm.domain.Trainer;
 import com.gym.crm.domain.Training;
 
 import java.util.Map;

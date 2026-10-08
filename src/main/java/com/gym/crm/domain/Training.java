@@ -2,7 +2,6 @@ package com.gym.crm.domain;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Training {
     private Long traineeId;

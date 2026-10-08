@@ -11,5 +11,4 @@ public interface TraineeDao {
     void delete(Long userId);
     Map<Long, Trainee> findAll();
 
-    Map<Long, Trainee> getAll();
 }

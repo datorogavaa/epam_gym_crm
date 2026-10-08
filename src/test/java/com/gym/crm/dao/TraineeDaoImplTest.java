@@ -8,12 +8,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TraineeDaoImplTest {
@@ -72,15 +74,6 @@ class TraineeDaoImplTest {
         assertNull(traineeDao.findById(101L));
     }
 
-    @Test
-    void findAllAndGetAllReturnMap() {
-        Trainee trainee = new Trainee();
-        trainee.setUserId(101L);
-        traineeDao.save(trainee);
-
-        assertEquals(1, traineeDao.findAll().size());
-        assertEquals(1, traineeDao.getAll().size());
-    }
 
     @Test
     void saveShouldIgnoreNullOrMissingId() {

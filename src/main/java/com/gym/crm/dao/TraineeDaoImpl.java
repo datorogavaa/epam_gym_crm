@@ -64,8 +64,4 @@ public class TraineeDaoImpl implements TraineeDao {
         return storage.getTrainees();
     }
 
-    @Override
-    public Map<Long, Trainee> getAll() {
-        return storage.getTrainees();
-    }
 }

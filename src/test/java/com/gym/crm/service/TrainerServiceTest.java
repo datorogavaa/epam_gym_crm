@@ -2,10 +2,11 @@ package com.gym.crm.service;
 
 import com.gym.crm.dao.TrainerDao;
 import com.gym.crm.domain.Trainer;
+import com.gym.crm.storage.Storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,15 +19,19 @@ class TrainerServiceTest {
 
     private TrainerService service;
     private TrainerDao trainerDao;
+    private Storage storage;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         service = new TrainerService();
         trainerDao = mock(TrainerDao.class);
+        storage = mock(Storage.class);
 
-        Method setter = TrainerService.class.getDeclaredMethod("setTrainerDao", TrainerDao.class);
-        setter.setAccessible(true);
-        setter.invoke(service, trainerDao);
+        when(storage.getTrainers()).thenReturn(new HashMap<>());
+        when(storage.getTrainees()).thenReturn(new HashMap<>());
+
+        service.setTrainerDao(trainerDao);
+        service.setStorage(storage);
     }
 
     @Test

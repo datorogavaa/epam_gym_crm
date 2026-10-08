@@ -1,7 +1,6 @@
 package com.gym.crm.domain;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 
 public class Trainee extends User {
