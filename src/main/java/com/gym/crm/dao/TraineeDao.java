@@ -10,4 +10,5 @@ public interface TraineeDao {
     void update(Trainee updatedTrainee);
     void delete(Long userId);
     Map<Long, Trainee> findAll();
+
 }

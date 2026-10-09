@@ -5,7 +5,6 @@ import com.gym.crm.domain.Training;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,13 +19,11 @@ class TrainingServiceTest {
     private TrainingDao trainingDao;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         service = new TrainingService();
         trainingDao = mock(TrainingDao.class);
 
-        Method setter = TrainingService.class.getDeclaredMethod("setTrainingDao", TrainingDao.class);
-        setter.setAccessible(true);
-        setter.invoke(service, trainingDao);
+        service.setTrainingDao(trainingDao);
     }
 
     @Test
@@ -56,5 +53,23 @@ class TrainingServiceTest {
         Map<Long, Training> result = service.findAll();
 
         assertEquals(trainings, result);
+    }
+
+    @Test
+    void findById_shouldReturnNullWhenDaoReturnsNull() {
+        when(trainingDao.findById(404L)).thenReturn(null);
+
+        Training result = service.findById(404L);
+
+        assertEquals(null, result);
+    }
+
+    @Test
+    void findAll_shouldReturnEmptyMapWhenNoTrainingsExist() {
+        when(trainingDao.findAll()).thenReturn(Map.of());
+
+        Map<Long, Training> result = service.findAll();
+
+        assertEquals(Map.of(), result);
     }
 }

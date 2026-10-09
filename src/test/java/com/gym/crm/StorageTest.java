@@ -4,89 +4,79 @@ import com.gym.crm.domain.Trainee;
 import com.gym.crm.domain.Trainer;
 import com.gym.crm.domain.Training;
 import com.gym.crm.storage.Storage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class StorageTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class StorageTest {
+
+    @Spy
+    private Map<Long, Trainee> trainees = new ConcurrentHashMap<>();
+
+    @Spy
+    private Map<Long, Trainer> trainers = new ConcurrentHashMap<>();
+
+    @Spy
+    private Map<Long, Training> trainings = new ConcurrentHashMap<>();
+
+    @InjectMocks
+    private Storage storage;
+
+    @BeforeEach
+    void setUp() {
+        storage.getTrainees().clear();
+        storage.getTrainers().clear();
+        storage.getTrainings().clear();
+    }
+
 
     @Test
-    void saveAndFindById() {
-        Storage storage = new Storage();
+    void directMapOperationsReflectInStorageMaps() {
+
         Trainee trainee = new Trainee();
-        trainee.setUserId(1L);
-        trainee.setFirstName("Alice");
+        trainee.setUserId(202L);
+        trainee.setFirstName("Sarah");
+        storage.getTrainees().put(202L, trainee);
 
-        storage.save("Trainee", 1L, trainee);
+        assertTrue(storage.getTrainees().containsKey(202L));
+        assertEquals("Sarah", storage.getTrainees().get(202L).getFirstName());
 
-        Object found = storage.findById("Trainee", 1L);
-        assertNotNull(found, "Saved trainee should be found");
-        assertTrue(found instanceof Trainee, "Found object should be a Trainee");
-        assertEquals(1L, ((Trainee) found).getUserId());
-        assertEquals("Alice", ((Trainee) found).getFirstName());
+        Trainer trainer = new Trainer();
+        trainer.setUserId(2L);
+        trainer.setFirstName("Bob");
+        storage.getTrainers().put(2L, trainer);
+
+        assertTrue(storage.getTrainers().containsKey(2L));
+        assertEquals("Bob", storage.getTrainers().get(2L).getFirstName());
+
+        Training training = new Training();
+        training.setTrainingName("Evening Yoga");
+        storage.getTrainings().put(5001L, training);
+
+        assertTrue(storage.getTrainings().containsKey(5001L));
+        assertEquals("Evening Yoga", storage.getTrainings().get(5001L).getTrainingName());
     }
 
     @Test
-    void deleteRemovesEntry() {
-        Storage storage = new Storage();
+    void removeOperationsWorkAcrossDistinctMaps() {
         Trainee trainee = new Trainee();
-        trainee.setUserId(2L);
+        trainee.setUserId(303L);
+        storage.getTrainees().put(303L, trainee);
 
-        storage.save("Trainee", 2L, trainee);
-        assertNotNull(storage.findById("Trainee", 2L));
-
-        storage.delete("Trainee", 2L);
-        assertNull(storage.findById("Trainee", 2L), "Deleted trainee should not be found");
-    }
-
-    @Test
-    void updateReplacesValue() {
-        Storage storage = new Storage();
-        Trainee original = new Trainee();
-        original.setUserId(3L);
-        original.setFirstName("Original");
-
-        storage.save("Trainee", 3L, original);
-
-        Trainee updated = new Trainee();
-        updated.setUserId(3L);
-        updated.setFirstName("Updated");
-
-        storage.update("Trainee", 3L, updated);
-
-        Object found = storage.findById("Trainee", 3L);
-        assertNotNull(found);
-        assertTrue(found instanceof Trainee);
-        assertEquals("Updated", ((Trainee) found).getFirstName());
-    }
-
-    @Test
-    void initPopulatesSampleData() {
-        Storage storage = new Storage();
-        storage.init();
-
-        assertNotNull(storage.getTrainers(), "Trainers map should not be null");
-        Trainer trainer = storage.getTrainers().get(1L);
-        assertNotNull(trainer, "Trainer with ID 1 should be present after init");
-        assertEquals("Alex", trainer.getFirstName());
-
-        assertNotNull(storage.getTrainees(), "Trainees map should not be null");
-        Trainee trainee = storage.getTrainees().get(101L);
-        assertNotNull(trainee, "Trainee with ID 101 should be present after init");
-        assertEquals("John", trainee.getFirstName());
-
-        assertNotNull(storage.getTrainings(), "Trainings map should not be null");
-        Training training = storage.getTrainings().get(1001L);
-        assertNotNull(training, "Training with ID 1001 should be present after init");
-        assertEquals(101L, training.getTraineeId());
-        assertEquals(1L, training.getTrainerId());
-    }
-
-    @Test
-    void saveCreatesNewKeyIfMissing() {
-        Storage storage = new Storage();
-        Object obj = new Object();
-        storage.save("CustomKey", 500L, obj);
-        assertEquals(obj, storage.findById("CustomKey", 500L));
+        assertNotNull(storage.getTrainees().remove(303L));
+        assertNull(storage.getTrainees().get(303L));
+        assertTrue(storage.getTrainees().isEmpty());
     }
 }

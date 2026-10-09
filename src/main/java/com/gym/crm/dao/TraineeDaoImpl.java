@@ -6,16 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
-
 
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
 
+    private final Logger logger = Logger.getLogger(TraineeDaoImpl.class.getName());
+    private final AtomicLong idGenerator = new AtomicLong(1000L);
     private Storage storage;
 
-
-    private final Logger logger = Logger.getLogger(TraineeDaoImpl.class.getName());
+    public TraineeDaoImpl() {
+    }
 
     @Autowired
     public void setStorage(Storage storage) {
@@ -24,24 +26,44 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public void save(Trainee trainee) {
-        storage.save(Trainee.class.getSimpleName(), trainee.getUserId(), trainee);
+        if (trainee == null || trainee.getUserId() == null) {
+            logger.warning("Attempted to save null trainee or trainee with null ID");
+            return;
+        }
+
+        if (trainee.getUserId() == null) {
+            trainee.setUserId(idGenerator.incrementAndGet());
+        }
+
+
+        storage.getTrainees().put(trainee.getUserId(), trainee);
         logger.info("Saved trainee with ID: " + trainee.getUserId());
     }
 
     @Override
+    public Trainee findById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        return storage.getTrainees().get(userId);
+    }
+
+    @Override
     public void update(Trainee updatedTrainee) {
-        storage.update(Trainee.class.getSimpleName(), updatedTrainee.getUserId(), updatedTrainee);
+        if (updatedTrainee == null || updatedTrainee.getUserId() == null) {
+            logger.warning("Attempted to update null trainee or trainee with null ID");
+            return;
+        }
+        storage.getTrainees().replace(updatedTrainee.getUserId(), updatedTrainee);
         logger.info("Updated trainee with ID: " + updatedTrainee.getUserId());
     }
 
     @Override
-    public Trainee findById(Long userId) {
-        return (Trainee) storage.findById(Trainee.class.getSimpleName(), userId);
-    }
-
-    @Override
     public void delete(Long userId) {
-        storage.delete(Trainee.class.getSimpleName(), userId);
+        if (userId == null) {
+            return;
+        }
+        storage.getTrainees().remove(userId);
         logger.info("Deleted trainee with ID: " + userId);
     }
 
@@ -49,4 +71,5 @@ public class TraineeDaoImpl implements TraineeDao {
     public Map<Long, Trainee> findAll() {
         return storage.getTrainees();
     }
+
 }

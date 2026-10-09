@@ -6,14 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 @Repository
 public class TrainerDaoImpl implements TrainerDao {
+
+    private final Logger logger = Logger.getLogger(TrainerDaoImpl.class.getName());
+    private final AtomicLong idGenerator = new AtomicLong(1000L);
     private Storage storage;
 
-
-    private Logger logger = Logger.getLogger(TrainerDaoImpl.class.getName());
+    public TrainerDaoImpl() {
+    }
 
     @Autowired
     public void setStorage(Storage storage) {
@@ -22,21 +26,37 @@ public class TrainerDaoImpl implements TrainerDao {
 
     @Override
     public void save(Trainer trainer) {
-        storage.save(Trainer.class.getSimpleName(), trainer.getUserId(), trainer);
+        if (trainer == null || trainer.getUserId() == null) {
+            logger.warning("Attempted to save null trainer or trainer with null ID");
+            return;
+        }
+
+        if (trainer.getUserId() == null) {
+            trainer.setUserId(idGenerator.incrementAndGet());
+        }
+
+
+        storage.getTrainers().put(trainer.getUserId(), trainer);
         logger.info("Saved trainer with ID: " + trainer.getUserId());
     }
 
     @Override
-    public void update(Trainer updatedTrainer) {
-        storage.update(Trainer.class.getSimpleName(), updatedTrainer.getUserId(), updatedTrainer);
-        logger.info("Updated trainer with ID: " + updatedTrainer.getUserId());
+    public Trainer findById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        return storage.getTrainers().get(userId);
     }
 
     @Override
-    public Trainer findById(Long userId) {
-        return (Trainer) storage.findById(Trainer.class.getSimpleName(), userId);
+    public void update(Trainer updatedTrainer) {
+        if (updatedTrainer == null || updatedTrainer.getUserId() == null) {
+            logger.warning("Attempted to update null trainer or trainer with null ID");
+            return;
+        }
+        storage.getTrainers().replace(updatedTrainer.getUserId(), updatedTrainer);
+        logger.info("Updated trainer with ID: " + updatedTrainer.getUserId());
     }
-
 
     @Override
     public Map<Long, Trainer> findAll() {

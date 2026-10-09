@@ -5,15 +5,21 @@ import com.gym.crm.storage.Storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
+
 
 @ExtendWith(MockitoExtension.class)
 class TrainingDaoImplTest {
@@ -21,43 +27,65 @@ class TrainingDaoImplTest {
     @Mock
     private Storage storage;
 
+    @InjectMocks
     private TrainingDaoImpl trainingDao;
+
+    private Map<Long, Training> mockTrainingsMap;
 
     @BeforeEach
     void setUp() {
-        trainingDao = new TrainingDaoImpl();
-        trainingDao.setStorage(storage);
+        mockTrainingsMap = new ConcurrentHashMap<>();
+        lenient().when(storage.getTrainings()).thenReturn(mockTrainingsMap);
     }
 
     @Test
-    void save_shouldAssignIdAndStoreTraining() {
+    void saveStoresTrainingWithGeneratedKey() {
         Training training = new Training();
-        training.setTrainingName("Cardio");
+        training.setTraineeId(101L);
+        training.setTrainerId(1L);
+        training.setTrainingName("Morning Cardio Kick");
+        training.setTrainingDate(LocalDate.of(2026, 9, 25));
+        training.setTrainingDuration(Duration.ofMinutes(60));
 
         trainingDao.save(training);
+        assertEquals(1, mockTrainingsMap.size());
 
-        verify(storage).save("Training", 1L, training);
+        Long generatedKey = mockTrainingsMap.keySet().iterator().next();
+        Training retrieved = trainingDao.findById(generatedKey);
+
+        assertNotNull(retrieved);
+        assertEquals("Morning Cardio Kick", retrieved.getTrainingName());
+        assertEquals(101L, retrieved.getTraineeId());
+        assertEquals(1L, retrieved.getTrainerId());
     }
 
     @Test
-    void findById_shouldReturnStoredTraining() {
-        Training training = new Training();
-        training.setTrainingName("Strength");
-        when(storage.findById("Training", 7L)).thenReturn(training);
-
-        Training result = trainingDao.findById(7L);
-
-        assertSame(training, result);
+    void findByIdReturnsNullWhenNotFoundOrNull() {
+        assertNull(trainingDao.findById(9999L));
+        assertNull(trainingDao.findById(null));
     }
 
     @Test
-    void findAll_shouldReturnAllTrainings() {
+    void findAllReturnsCompleteMap() {
         Training training = new Training();
-        Map<Long, Training> expected = Map.of(1L, training);
-        when(storage.getTrainings()).thenReturn(expected);
+        training.setTrainingName("Yoga Flow");
+        trainingDao.save(training);
 
         Map<Long, Training> result = trainingDao.findAll();
 
-        assertEquals(expected, result);
+        assertEquals(1, result.size());
+        assertTrue(result.containsValue(training));
+    }
+
+    @Test
+    void saveShouldIgnoreNullTraining() {
+        trainingDao.save(null);
+
+        assertTrue(trainingDao.findAll().isEmpty());
+    }
+
+    @Test
+    void findByIdReturnsNullForNullKey() {
+        assertNull(trainingDao.findById(null));
     }
 }

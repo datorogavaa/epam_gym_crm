@@ -2,68 +2,87 @@ package com.gym.crm.service;
 
 import com.gym.crm.dao.TrainerDao;
 import com.gym.crm.domain.Trainer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class TrainerServiceTest {
 
-    private TrainerService service;
-    private TrainerDao trainerDao;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        service = new TrainerService();
-        trainerDao = mock(TrainerDao.class);
-
-        Method setter = TrainerService.class.getDeclaredMethod("setTrainerDao", TrainerDao.class);
-        setter.setAccessible(true);
-        setter.invoke(service, trainerDao);
-    }
-
     @Test
-    void save_shouldDelegateToDao() {
+    void testSaveTrainerGeneratesCredentialsAndSaves() {
+        TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+        TrainerService trainerService = new TrainerService();
+        trainerService.setTrainerDao(trainerDao);
+
         Trainer trainer = new Trainer();
+        trainer.setFirstName("Jane");
+        trainer.setLastName("Smith");
 
-        service.save(trainer);
+        when(trainerDao.findAll()).thenReturn(new HashMap<>());
 
-        verify(trainerDao).save(trainer);
+        trainerService.save(trainer);
+
+        assertNotNull(trainer.getUsername());
+        assertEquals("Jane.Smith", trainer.getUsername());
+        assertNotNull(trainer.getPassword());
+        assertEquals(10, trainer.getPassword().length());
+
+        verify(trainerDao, times(1)).save(trainer);
     }
 
     @Test
-    void update_shouldDelegateToDao() {
+    void testFindById() {
+        TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+        TrainerService trainerService = new TrainerService();
+        trainerService.setTrainerDao(trainerDao);
+
         Trainer trainer = new Trainer();
+        trainer.setUserId(2L);
+        trainer.setFirstName("Jane");
+        trainer.setLastName("Smith");
 
-        service.update(trainer);
+        when(trainerDao.findById(2L)).thenReturn(trainer);
 
-        verify(trainerDao).update(trainer);
+        Trainer found = trainerService.findById(2L);
+
+        assertNotNull(found);
+        assertEquals(2L, found.getUserId());
+        assertEquals("Jane", found.getFirstName());
+        verify(trainerDao, times(1)).findById(2L);
     }
 
     @Test
-    void findById_shouldReturnTrainerFromDao() {
+    void testUpdate() {
+        TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+        TrainerService trainerService = new TrainerService();
+        trainerService.setTrainerDao(trainerDao);
+
         Trainer trainer = new Trainer();
-        when(trainerDao.findById(7L)).thenReturn(trainer);
+        trainer.setUserId(2L);
 
-        Trainer result = service.findById(7L);
-
-        assertSame(trainer, result);
+        trainerService.update(trainer);
+        verify(trainerDao, times(1)).update(trainer);
     }
 
     @Test
-    void findAll_shouldReturnAllTrainersFromDao() {
-        Map<Long, Trainer> trainers = Map.of(1L, new Trainer(), 2L, new Trainer());
-        when(trainerDao.findAll()).thenReturn(trainers);
+    void testFindAll() {
+        TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+        TrainerService trainerService = new TrainerService();
+        trainerService.setTrainerDao(trainerDao);
 
-        Map<Long, Trainer> result = service.findAll();
+        Trainer trainer = new Trainer();
+        Map<Long, Trainer> mockMap = new HashMap<>();
+        mockMap.put(2L, trainer);
+        when(trainerDao.findAll()).thenReturn(mockMap);
 
-        assertEquals(trainers, result);
+        Map<Long, Trainer> result = trainerService.findAll();
+
+        assertEquals(1, result.size());
+        verify(trainerDao, times(1)).findAll();
     }
 }
