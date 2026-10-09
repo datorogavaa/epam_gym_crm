@@ -2,98 +2,97 @@ package com.gym.crm.service;
 
 import com.gym.crm.dao.TraineeDao;
 import com.gym.crm.domain.Trainee;
-import com.gym.crm.storage.Storage;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class TraineeServiceTest {
 
-    private TraineeService service;
-    private TraineeDao traineeDao;
-    private Storage storage;
-
-    @BeforeEach
-    void setUp() {
-        service = new TraineeService();
-        traineeDao = mock(TraineeDao.class);
-        storage = mock(Storage.class);
-
-        when(storage.getTrainers()).thenReturn(new HashMap<>());
-        when(storage.getTrainees()).thenReturn(new HashMap<>());
-
-        service.setTraineeDao(traineeDao);
-        service.setStorage(storage);
-    }
-
     @Test
-    void save_shouldDelegateToDao() {
+    void testSaveTraineeGeneratesCredentialsAndSaves() {
+        TraineeDao traineeDao = Mockito.mock(TraineeDao.class);
+        TraineeService traineeService = new TraineeService();
+        traineeService.setTraineeDao(traineeDao);
+
         Trainee trainee = new Trainee();
+        trainee.setFirstName("John");
+        trainee.setLastName("Doe");
 
-        service.save(trainee);
+        when(traineeDao.findAll()).thenReturn(new HashMap<>());
 
-        verify(traineeDao).save(trainee);
+        traineeService.save(trainee);
+
+        assertNotNull(trainee.getUsername());
+        assertEquals("John.Doe", trainee.getUsername());
+        assertNotNull(trainee.getPassword());
+        assertEquals(10, trainee.getPassword().length());
+
+        verify(traineeDao, times(1)).save(trainee);
     }
 
     @Test
-    void update_shouldDelegateToDao() {
+    void testFindById() {
+        TraineeDao traineeDao = Mockito.mock(TraineeDao.class);
+        TraineeService traineeService = new TraineeService();
+        traineeService.setTraineeDao(traineeDao);
+
         Trainee trainee = new Trainee();
+        trainee.setUserId(1L);
+        trainee.setFirstName("John");
+        trainee.setLastName("Doe");
 
-        service.update(trainee);
+        when(traineeDao.findById(1L)).thenReturn(trainee);
 
-        verify(traineeDao).update(trainee);
+        Trainee found = traineeService.findById(1L);
+
+        assertNotNull(found);
+        assertEquals(1L, found.getUserId());
+        assertEquals("John", found.getFirstName());
+        verify(traineeDao, times(1)).findById(1L);
     }
 
     @Test
-    void findById_shouldReturnTraineeFromDao() {
+    void testUpdate() {
+        TraineeDao traineeDao = Mockito.mock(TraineeDao.class);
+        TraineeService traineeService = new TraineeService();
+        traineeService.setTraineeDao(traineeDao);
+
         Trainee trainee = new Trainee();
-        when(traineeDao.findById(8L)).thenReturn(trainee);
+        trainee.setUserId(1L);
 
-        Trainee result = service.findById(8L);
-
-        assertSame(trainee, result);
+        traineeService.update(trainee);
+        verify(traineeDao, times(1)).update(trainee);
     }
 
     @Test
-    void deleteById_shouldDelegateToDao() {
-        service.deleteById(8L);
+    void testDeleteById() {
+        TraineeDao traineeDao = Mockito.mock(TraineeDao.class);
+        TraineeService traineeService = new TraineeService();
+        traineeService.setTraineeDao(traineeDao);
 
-        verify(traineeDao).delete(8L);
+        traineeService.deleteById(1L);
+        verify(traineeDao, times(1)).delete(1L);
     }
 
     @Test
-    void findAll_shouldReturnAllTraineesFromDao() {
-        Map<Long, Trainee> trainees = Map.of(1L, new Trainee(), 2L, new Trainee());
-        when(traineeDao.findAll()).thenReturn(trainees);
+    void testFindAll() {
+        TraineeDao traineeDao = Mockito.mock(TraineeDao.class);
+        TraineeService traineeService = new TraineeService();
+        traineeService.setTraineeDao(traineeDao);
 
-        Map<Long, Trainee> result = service.findAll();
+        Trainee trainee = new Trainee();
+        Map<Long, Trainee> mockMap = new HashMap<>();
+        mockMap.put(1L, trainee);
+        when(traineeDao.findAll()).thenReturn(mockMap);
 
-        assertEquals(trainees, result);
-    }
+        Map<Long, Trainee> result = traineeService.findAll();
 
-    @Test
-    void findById_shouldReturnNullWhenDaoReturnsNull() {
-        when(traineeDao.findById(404L)).thenReturn(null);
-
-        Trainee result = service.findById(404L);
-
-        assertEquals(null, result);
-    }
-
-    @Test
-    void findAll_shouldReturnEmptyMapWhenNoTraineesExist() {
-        when(traineeDao.findAll()).thenReturn(Map.of());
-
-        Map<Long, Trainee> result = service.findAll();
-
-        assertEquals(Map.of(), result);
+        assertEquals(1, result.size());
+        verify(traineeDao, times(1)).findAll();
     }
 }

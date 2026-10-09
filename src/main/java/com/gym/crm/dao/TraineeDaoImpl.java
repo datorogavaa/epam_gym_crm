@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
 
     private final Logger logger = Logger.getLogger(TraineeDaoImpl.class.getName());
+    private final AtomicLong idGenerator = new AtomicLong(1000L);
     private Storage storage;
 
     public TraineeDaoImpl() {
@@ -28,6 +30,12 @@ public class TraineeDaoImpl implements TraineeDao {
             logger.warning("Attempted to save null trainee or trainee with null ID");
             return;
         }
+
+        if (trainee.getUserId() == null) {
+            trainee.setUserId(idGenerator.incrementAndGet());
+        }
+
+
         storage.getTrainees().put(trainee.getUserId(), trainee);
         logger.info("Saved trainee with ID: " + trainee.getUserId());
     }

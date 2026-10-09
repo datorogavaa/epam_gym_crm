@@ -31,9 +31,11 @@ public class TrainingDaoImpl implements TrainingDao {
             return;
         }
 
-        Long generatedId = idGenerator.incrementAndGet();
-        storage.getTrainings().put(generatedId, training);
-        logger.info("Saved training with ID: " + generatedId);
+        if (training.getId() == null) {
+            training.setId(idGenerator.incrementAndGet());
+        }
+        storage.getTrainings().put(training.getId(), training);
+        logger.info("Saved training with ID: " + training.getId());
     }
 
     @Override

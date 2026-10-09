@@ -4,12 +4,21 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 public class Training {
+    private Long id;
     private Long traineeId;
     private Long trainerId;
     private String trainingName;
     private TrainingType trainingType;
     private LocalDate trainingDate;
     private Duration trainingDuration;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getTraineeId() {
         return traineeId;

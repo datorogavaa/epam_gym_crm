@@ -1,7 +1,6 @@
 package com.gym.crm.util;
 
-import com.gym.crm.domain.Trainee;
-import com.gym.crm.domain.Trainer;
+import com.gym.crm.domain.User;
 
 import java.util.Collection;
 import java.util.Random;
@@ -26,30 +25,31 @@ public class Util {
         return password.toString();
     }
 
-    public static String generateUniqueUsername(String baseUsername,
-                                                Collection<Trainee> trainees,
-                                                Collection<Trainer> trainers) {
+    @SafeVarargs
+    public static String generateUniqueUsername(String baseUsername, Collection<? extends User>... userCollections) {
         String candidate = baseUsername;
         int suffix = 0;
-        while (usernameExists(candidate, trainees, trainers)) {
+        while (usernameExists(candidate, userCollections)) {
             suffix++;
             candidate = baseUsername + suffix;
         }
         return candidate;
     }
 
-    public static boolean usernameExists(String username, Collection<Trainee> trainees, Collection<Trainer> trainers) {
-        for (Trainee trainee : trainees) {
-            if (username.equals(trainee.getUsername())) {
-                return true;
-            }
+    @SafeVarargs
+    public static boolean usernameExists(String username, Collection<? extends User>... userCollections) {
+        if (userCollections == null) {
+            return false;
         }
-        for (Trainer trainer : trainers) {
-            if (username.equals(trainer.getUsername())) {
-                return true;
+        for (Collection<? extends User> users : userCollections) {
+            if (users != null) {
+                for (User user : users) {
+                    if (user != null && username.equals(user.getUsername())) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
     }
-
 }
